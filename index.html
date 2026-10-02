@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ЧМА 12 — СЕМЬЯ</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;background:#0b0a0c;color:#ffe9bd;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}body{overflow-x:hidden}
+header{position:sticky;top:0;z-index:100;background:#171116ee;border-bottom:3px solid #8b5b42;display:flex;justify-content:space-between;align-items:center;padding:10px 16px;backdrop-filter:blur(8px)}
+.logo{font-weight:900;letter-spacing:3px;text-shadow:3px 3px #000;font-size:21px}.logo small{display:block;color:#cda779;font-size:9px;letter-spacing:1px;margin-top:3px}
+nav{display:flex;gap:6px;flex-wrap:wrap}button{font:inherit}nav button,.mini-btn{background:#40292a;color:#ffe5ad;border:2px solid #9b684b;padding:7px 10px;cursor:pointer;box-shadow:3px 3px #0008}nav button:hover,.mini-btn:hover{background:#8d523e}
+main{max-width:1700px;margin:auto;padding:14px}.intro{display:flex;justify-content:space-between;align-items:end;gap:15px;margin:4px 0 12px}.intro h1{margin:0;font-size:clamp(25px,4vw,46px);text-shadow:4px 4px #000;letter-spacing:3px}.intro p{margin:4px 0 0;color:#bca98c;font-size:10px}.status{background:#1c1418;border:2px solid #704a3b;padding:8px 11px;font-size:9px;line-height:1.5}
+.scene{position:relative;width:100%;aspect-ratio:1721/914;border:8px solid #342126;background:#171015;box-shadow:0 18px 50px #000;overflow:hidden;isolation:isolate}.scene-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;image-rendering:auto;z-index:1}.shade{position:absolute;inset:0;z-index:2;pointer-events:none;background:radial-gradient(circle at 50% 48%,transparent 35%,#08070b55 100%)}.grain{position:absolute;inset:0;z-index:3;pointer-events:none;opacity:.08;background:repeating-linear-gradient(0deg,transparent 0 3px,#fff 4px,transparent 5px);mix-blend-mode:overlay}
+/* Invisible but real interaction zones: the scene remains a detailed pixel-art world, while objects and people are HTML interactions on top. */
+.hotspot{position:absolute;z-index:12;transform:translate(-50%,-50%);cursor:pointer;border:0;background:transparent;outline:0}.hotspot:hover{background:transparent;box-shadow:none}.hotspot:focus{outline:none}.hotspot .tip,.hotspot .ring{display:none}
+.person{width:6.2%;height:9%;min-width:48px;min-height:46px}.person:hover{background:transparent;filter:none}
+.scene-ui{position:absolute;z-index:20;left:12px;right:12px;top:12px;display:flex;justify-content:space-between;pointer-events:none}.tag{background:#171116dd;border:2px solid #81533e;padding:6px 8px;font-size:9px;box-shadow:3px 3px #0008}.tag b{color:#e9b96d}
+.dialog{position:absolute;z-index:50;display:none;width:min(270px,42vw);background:#20171bdd;color:#f6e1b1;border:3px solid #a86b45;box-shadow:5px 5px #000b;border-radius:3px;padding:9px 11px;image-rendering:pixelated}.dialog.open{display:block;animation:pop .12s ease-out}@keyframes pop{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}.dialog:after{content:"";position:absolute;left:28px;bottom:-11px;width:16px;height:16px;background:#20171b;border-right:3px solid #a86b45;border-bottom:3px solid #a86b45;transform:rotate(45deg)}.dialog h2{margin:0 0 4px;font-size:11px;color:#f0bd72;text-shadow:2px 2px #000}.dialog .games{display:none}.dialog p{font-size:10px;line-height:1.45;margin:0;color:#f7e7c3}.dialog .row{display:none}.dialog .x{position:absolute;right:4px;top:3px;background:transparent;color:#d9b47b;border:0;font-size:12px;cursor:pointer;padding:0}
+
+.legend{margin-top:12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}.panel{background:#191217;border:2px solid #684536;padding:10px}.panel h3{margin:0 0 6px;color:#e5b16a;font-size:12px}.panel p,.panel li{font-size:9px;line-height:1.5;color:#c4b093}.panel ul{padding-left:17px;margin:6px 0 0}.help{text-align:center;color:#a9967d;font-size:9px;margin:12px 0}
+.modal{position:fixed;inset:0;z-index:200;background:#08070bdd;display:none;align-items:center;justify-content:center;padding:15px}.modal.open{display:flex}.profile{width:min(740px,95vw);max-height:90vh;overflow:auto;background:#f5e2bb;color:#302129;border:6px solid #302129;box-shadow:12px 12px #000;padding:16px}.close{float:right;background:#302129;color:#fff0cc;border:0;padding:4px 8px;cursor:pointer}.profiletop{display:flex;gap:14px;align-items:center}.portrait{width:105px;height:130px;image-rendering:pixelated;border:3px solid #704a3a;background:#d6bb8d}.profile h2{margin:0 0 4px}.muted{font-size:9px;color:#80634f}.chips{display:flex;flex-wrap:wrap;gap:5px;margin:10px 0}.chip{font-size:8px;background:#c99358;border:2px solid #704533;padding:4px 6px}.quote{background:#ead9b1;border-left:5px solid #86513c;padding:9px;font-size:10px}.quotes{display:grid;gap:5px;margin-top:8px}.q{background:#fff2d2;border:2px solid #d0b98c;padding:7px;font-size:9px}
+
+/* Living interior: only light/ambient layers move, the artwork and characters stay perfectly still. */
+.ambient{position:absolute;inset:0;z-index:4;pointer-events:none;overflow:hidden}
+.fire-glow{position:absolute;left:50%;top:28%;width:22%;height:28%;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,rgba(255,181,83,.20) 0%,rgba(255,132,48,.10) 28%,transparent 70%);filter:blur(10px);animation:fireGlow 2.6s ease-in-out infinite}
+.light-glow{position:absolute;width:18%;height:22%;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,rgba(255,191,91,.16),rgba(255,145,55,.06) 38%,transparent 72%);filter:blur(8px);animation:lampGlow 3.1s ease-in-out infinite}
+.g1{left:15%;top:48%;animation-delay:-.8s}.g2{left:36%;top:45%;animation-delay:-1.6s}.g3{left:68%;top:48%;animation-delay:-2.1s}.g4{left:84%;top:65%;animation-delay:-.4s}
+.window-glow{position:absolute;left:24%;top:11%;width:13%;height:12%;background:radial-gradient(ellipse,rgba(77,130,190,.10),transparent 70%);filter:blur(4px);animation:moonPulse 5s ease-in-out infinite}
+.window-glow.w2{left:77%;top:32%;animation-delay:-2.5s}
+.ember{position:absolute;width:3px;height:3px;background:#ffd27b;box-shadow:0 0 7px #ff9d45;opacity:0;border-radius:50%;animation:emberFloat 2.8s linear infinite}
+.e1{left:49.2%;top:30%;animation-delay:-.3s}.e2{left:51%;top:32%;animation-delay:-1.5s}.e3{left:50.2%;top:34%;animation-delay:-2.2s}.e4{left:48.8%;top:31.5%;animation-delay:-2.7s}
+@keyframes fireGlow{0%,100%{opacity:.72;transform:translate(-50%,-50%) scale(.94)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.06)}}
+@keyframes lampGlow{0%,100%{opacity:.55;transform:translate(-50%,-50%) scale(.92)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.08)}}
+@keyframes moonPulse{0%,100%{opacity:.55}50%{opacity:.9}}
+@keyframes emberFloat{0%{opacity:0;transform:translate(0,8px) scale(.6)}18%{opacity:.95}100%{opacity:0;transform:translate(5px,-55px) scale(1)}}
+
+.dialog{width:min(290px,44vw);background:linear-gradient(180deg,#24191bdd,#171116f5);border:2px solid #b77a4f;box-shadow:6px 6px 0 #000b,0 0 0 1px #3a241f inset;border-radius:2px;padding:11px 13px 12px;backdrop-filter:blur(3px)}
+.dialog.open{animation:dialogIn .16s steps(3,end)}
+@keyframes dialogIn{from{opacity:0;transform:translateY(5px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+.dialog:before{content:"";position:absolute;inset:4px;border:1px solid #6c4636;pointer-events:none;opacity:.65}
+.dialog:after{left:28px;bottom:-9px;width:14px;height:14px;background:#1b1417;border-right:2px solid #b77a4f;border-bottom:2px solid #b77a4f}
+.dialog h2{position:relative;margin:0 20px 6px 0;padding-bottom:5px;font-size:11px;color:#f2c27d;border-bottom:1px solid #6d4738;text-shadow:2px 2px #000;letter-spacing:.3px}
+.dialog p{position:relative;min-height:30px;font-size:10px;line-height:1.55;margin:0;color:#f9e8c5;text-shadow:1px 1px #000}
+.dialog .x{z-index:2;right:6px;top:5px;background:#3b2525;border:1px solid #8e5b43;color:#f0c58a;width:18px;height:18px;line-height:14px;padding:0}
+.dialog .x:hover{background:#63392d}
+.dialog .hint{position:relative;margin-top:7px;color:#9d8269;font-size:7px;text-align:right;letter-spacing:.2px}
+
+@media(max-width:800px){header{align-items:flex-start}.logo{font-size:16px}.intro{display:block}.status{margin-top:8px}.scene{aspect-ratio:auto;height:620px}.scene-bg{object-fit:cover;object-position:center}.person{min-width:52px;min-height:50px}.legend{grid-template-columns:1fr}.dialog{position:fixed!important;left:50%!important;top:auto!important;bottom:12px!important;transform:translateX(-50%)!important}}
+
+.room-modal{position:fixed;inset:0;z-index:180;background:#08070be8;display:none;align-items:center;justify-content:center;padding:18px}.room-modal.open{display:flex}.room-card{width:min(1180px,96vw);max-height:92vh;background:#171116;border:5px solid #6f493a;box-shadow:12px 12px #000;color:#ffe9bd;overflow:auto}.room-head{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:2px solid #6f493a}.room-head h2{margin:0;font-size:15px;color:#efbd76}.room-close{background:#392526;color:#ffe8b4;border:2px solid #8d5d46;padding:5px 9px;cursor:pointer}.room-tabs{display:flex;gap:6px;padding:9px;flex-wrap:wrap;background:#21181d}.room-tabs button{background:#38262a;color:#f5d9a5;border:2px solid #79503e;padding:6px 9px;cursor:pointer}.room-tabs button.active,.room-tabs button:hover{background:#704333}.room-view{position:relative;background:#0c0a0d;min-height:400px}.room-view img{display:block;width:100%;max-height:68vh;object-fit:contain;image-rendering:auto}.room-caption{padding:8px 11px;color:#bda98b;font-size:9px;border-top:2px solid #3e2c2a}.door-note{font-size:8px;color:#9f856d}
+@media(max-width:800px){.room-card{max-height:94vh}.room-view img{max-height:58vh}}
+
+.family-modal{position:fixed;inset:0;z-index:220;background:#08070be8;display:none;align-items:center;justify-content:center;padding:18px}.family-modal.open{display:flex}.family-card{width:min(1120px,96vw);max-height:92vh;background:#171116;border:5px solid #6f493a;box-shadow:12px 12px #000;color:#ffe9bd;overflow:auto}.family-head{display:flex;align-items:center;justify-content:space-between;padding:11px 13px;border-bottom:2px solid #6f493a;background:#1d151a}.family-head h2{margin:0;color:#efbd76;font-size:17px;text-shadow:2px 2px #000}.family-head p{margin:4px 0 0;color:#a98e72;font-size:8px}.family-close{background:#392526;color:#ffe8b4;border:2px solid #8d5d46;padding:5px 9px;cursor:pointer}.family-grid{padding:14px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.family-member{position:relative;min-height:220px;background:linear-gradient(180deg,#25191d,#171116);border:2px solid #674335;box-shadow:4px 4px #0008;cursor:pointer;padding:8px;text-align:center;transition:transform .08s,border-color .08s,background .08s}.family-member:hover{transform:translateY(-2px);border-color:#b47750;background:#302025}.family-member img{display:block;width:100%;height:145px;object-fit:contain;image-rendering:pixelated;background:radial-gradient(circle at 50% 60%,#5a3b31 0,#2b1e20 52%,#171116 78%);border:2px solid #4e342d}.family-member .member-name{margin-top:7px;color:#f0c27c;font-weight:900;font-size:10px;text-shadow:2px 2px #000}.family-member .member-games{margin-top:4px;color:#ad957b;font-size:7px;line-height:1.35;min-height:19px}.family-member .member-num{position:absolute;left:5px;top:4px;color:#8e705d;font-size:7px} .family-foot{padding:9px 13px;border-top:2px solid #3e2c2a;color:#8f7864;font-size:8px;text-align:center}.portrait-modal{position:fixed;inset:0;z-index:320;background:#050407ee;display:none;align-items:center;justify-content:center;padding:22px}.portrait-modal.open{display:flex}.portrait-card{position:relative;width:min(620px,92vw);max-height:92vh;background:linear-gradient(180deg,#21171b,#100d10);border:5px solid #8a5b42;box-shadow:14px 14px #000;color:#ffe9bd;padding:14px;text-align:center}.portrait-card:before{content:"";position:absolute;inset:6px;border:1px solid #c18a59;pointer-events:none}.portrait-big{display:block;width:min(560px,86vw);height:min(560px,70vh);margin:10px auto 12px;object-fit:contain;image-rendering:pixelated;background:radial-gradient(circle at 50% 55%,#654437 0,#2d2021 55%,#100d10 82%);border:3px solid #5f4034}.portrait-name{font-size:18px;font-weight:900;color:#f2c27e;text-shadow:3px 3px #000;margin-bottom:4px}.portrait-sub{font-size:8px;color:#a99076}.portrait-x{position:absolute;right:12px;top:10px;z-index:2;background:#392526;color:#ffe8b4;border:2px solid #8d5d46;padding:4px 9px;cursor:pointer;font-size:15px}.portrait-card{cursor:default}@media(max-width:620px){.portrait-modal{padding:10px}.portrait-card{width:96vw;padding:9px}.portrait-big{height:62vh}.portrait-name{font-size:15px}}@media(max-width:900px){.family-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}@media(max-width:620px){.family-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:10px}.family-member{min-height:195px}.family-member img{height:125px}.family-head h2{font-size:14px}}
+.portrait-big,.family-member img{image-rendering:pixelated;image-rendering:crisp-edges;image-rendering:-moz-crisp-edges}
+</style>
+</head>
+<body>
+<header><div class="logo">ЧМА 12 <small>ВЕРХНЕЕ НАЗВАНИЕ • СЕМЬЯ</small></div><nav><button class="music-orb" id="musicOrb" aria-label="Музыка">♫</button><button id="night">☾ Ночь</button><button id="roomsBtn">🚪 Комнаты</button><button id="mapBtn">🗺️ Карта</button><button id="familyBtn">👥 Семья</button></nav></header>
+<main>
+<div class="intro"><div><h1>СЕМЬЯ</h1><p>Теперь это не просто фон: это общий дом, где у каждого есть своё место.</p></div><div class="status"><b>11 друзей</b><br>каждый сидит в своей зоне<br>только персонажи кликабельны</div></div>
+<section class="scene" id="scene">
+<img class="scene-bg" src="assets/house_scene.png" alt="Детализированная пиксельная таверна-дом Семьи">
+<div class="shade"></div><div class="grain"></div>
+<div class="ambient" aria-hidden="true">
+  <div class="fire-glow"></div>
+  <div class="light-glow g1"></div><div class="light-glow g2"></div><div class="light-glow g3"></div><div class="light-glow g4"></div>
+  <div class="window-glow"></div><div class="window-glow w2"></div>
+  <i class="ember e1"></i><i class="ember e2"></i><i class="ember e3"></i><i class="ember e4"></i>
+</div>
+<div class="scene-ui"><div class="tag">🔥 <b>ДОМ СЕМЬИ</b> • живой пиксельный интерьер</div><div class="tag">онлайн: <b>11</b> • вечер</div></div>
+
+<!-- Character interaction zones are aligned with the seated figures in the artwork. -->
+<div class="hotspot person" style="left:8.3%;top:47.8%" data-person="0"><span class="ring"></span></div>
+<div class="hotspot person" style="left:26.7%;top:38.8%" data-person="1"><span class="ring"></span></div>
+<div class="hotspot person" style="left:25.9%;top:10.0%" data-person="2"><span class="ring"></span></div>
+<div class="hotspot person" style="left:62.4%;top:10.3%" data-person="3"><span class="ring"></span></div>
+<div class="hotspot person" style="left:75.8%;top:18.6%" data-person="6"><span class="ring"></span></div>
+<div class="hotspot person" style="left:56.4%;top:45.7%" data-person="10"><span class="ring"></span></div>
+<div class="hotspot person" style="left:12.2%;top:66.9%" data-person="8"><span class="ring"></span></div>
+<div class="hotspot person" style="left:24.2%;top:66.1%" data-person="9"><span class="ring"></span></div>
+<div class="hotspot person" style="left:39.6%;top:66.1%" data-person="4"><span class="ring"></span></div>
+<div class="hotspot person" style="left:56.5%;top:64.6%" data-person="7"><span class="ring"></span></div>
+<div class="hotspot person" style="left:75.8%;top:79.4%" data-person="5"><span class="ring"></span></div>
+
+<div class="dialog" id="dialog"><button class="x" id="dx">×</button><h2 id="dn"></h2><div class="games" id="dg"></div><p id="dt"></p><div class="hint">кликни ещё раз — следующая фраза</div></div>
+
+</section>
+<div class="legend"><div class="panel"><h3>🪑 СВОЁ МЕСТО</h3><p>Все 11 персонажей теперь привязаны к своим местам прямо в сцене: кресла, стол, бар, кровать и угол у окна. Кликни прямо по персонажу — рядом, на его месте, появится его реплика.</p></div><div class="panel"><h3>🔥 ЖИВОЙ ИНТЕРЬЕР</h3><ul><li>никаких подсветок и рамок при наведении</li><li>каждый персонаж остаётся на своём месте</li><li>клик по персонажу открывает реплику</li><li>повторный клик по персонажу переключает его фразы</li></ul></div><div class="panel"><h3>🎮 ПРОФИЛИ</h3><p>Нажми на персонажа, чтобы открыть его реплику прямо рядом с ним. Rosynyan остаётся девушкой со свинкой — её место находится справа от общего стола.</p></div></div>
+<div class="help">Кликни по персонажу → прямо рядом с ним всплывёт его реплика. Повторный клик покажет следующую фразу.</div>
+</main>
+
+<div class="room-modal" id="roomModal"><div class="room-card"><div class="room-head"><div><h2 id="roomTitle">Комнаты дома</h2><div class="door-note">Выбери дверь — сцена плавно сменится</div></div><button class="room-close" id="roomClose">×</button></div><div class="room-tabs"><button data-room="hall" class="active">🔥 Общий зал</button><button data-room="library">📚 Библиотека</button><button data-room="outside">🌲 Двор</button><button data-room="map">🗺️ План дома</button></div><div class="room-view"><img id="roomImg" src="assets/house_scene.png" alt="Комната"></div><div class="room-caption" id="roomCaption">Главная комната Семьи — общий стол, камин и места друзей.</div></div></div>
+
+<div class="family-modal" id="familyModal"><div class="family-card"><div class="family-head"><div><h2>👥 СЕМЬЯ</h2><p>Все 11 персонажей — каждый со своим лицом и стилем.</p></div><button class="family-close" id="familyClose">×</button></div><div class="family-grid" id="familyGrid"></div><div class="family-foot">Клик по портрету — открыть его в большом формате.</div></div></div>
+<div class="portrait-modal" id="portraitModal"><div class="portrait-card"><button class="portrait-x" id="portraitClose">×</button><img class="portrait-big" id="portraitBig" alt="Портрет"><div class="portrait-name" id="portraitName"></div><div class="portrait-sub">Портрет участника «Семьи»</div></div></div>
+<div class="modal" id="modal"><div class="profile"><button class="close" id="close">×</button><div class="profiletop"><img class="portrait" id="portrait"><div><h2 id="pn"></h2><div class="muted">участник «Семьи» • игровой профиль</div><div class="chips" id="chips"></div></div></div><div class="quote" id="quote"></div><div class="quotes" id="quotes"></div></div></div>
+<script>
+const people=[
+{name:'Aaander',games:['Warframe','World of Warcraft','Dark Souls','Guilty Gear Strive'],phrases:['Краб есть. Значит, билд на сегодня уже оптимальный.','В Warframe я не фармлю — я просто очень долго ищу нужную дверь.','В Dark Souls костёр видел? Вот и всё, что мне сегодня нужно.','Guilty Gear научил меня главному: блокировать надо даже сообщения в чате.','WoW? Я зашёл на пять минут. Пять часов назад.']},
+{name:'Tankrak',games:['Новеллы','Guilty Gear Strive','Slay the Spire'],phrases:['Я бы выбрал другую концовку, но сначала допью чай.','В Slay the Spire мой главный билд — чай и надежда.','Guilty Gear: персонаж комбо, я — чай комбо.','Новеллы хороши тем, что никто не орёт, когда ты сделал неправильный ход. Обычно.','Чай остыл. Это уже скрытая плохая концовка.']},
+{name:'Watcher',games:['Warframe','Stardew Valley','Pathfinder'],phrases:['В Stardew я пришёл за урожаем, а получил ипотеку на теплицу.','Pathfinder говорит: брось кубик. Я говорю: пусть он бросит первым.','В Warframe всё просто: ниндзя, космос и ещё одна штука, которую надо скрафтить.','Я посадил пастернак. Теперь это мой главный сюжетный персонаж.','Крит не выпал. Но зато красиво.']},
+{name:'Koshakowsky',games:['Разные игры'],phrases:['Во что играю? Да.','План на вечер: открыть библиотеку и случайно начать третью новую игру.','Мой жанр — «попробую на час».','Я не потерялся. Я исследую меню.','Если игра требует 40 часов — у меня есть 40 часов. Теоретически.']},
+{name:'Askerlevel',games:['Разные игры'],phrases:['…','?','! ',':)','Я не знаю, что происходит, но :) уже достаточно убедительно.']},
+{name:'Кила Селай',games:['Warframe','Hearthstone','The Elder Scrolls Online'],phrases:['В Hearthstone я играю не карту — я играю надежду.','ESO: я зашёл выполнить один квест. Карта теперь знает моё настоящее имя.','Warframe научил: если не знаешь, что делать, прыгни. Иногда это работает.','Топдек любит меня примерно так же, как босс любит хил.','Сегодня без ранкеда. Сегодня я цивилизованный человек.']},
+{name:'Sybilhlweiss',games:['League of Legends','Pathfinder','Warframe','Slay the Spire'],phrases:['Pathfinder: натуральная 1 — официальный спонсор моих решений.','В LoL я не проигрываю линию. Я создаю контент для команды.','Slay the Spire: ещё одна карта и спать. Конечно.','Warframe — это когда модов больше, чем свободного места в голове.','Кубик сказал «нет». Кубик сегодня главный.']},
+{name:'Rosynyan',games:['Hearthstone','Slay the Spire','Dead by Daylight'],phrases:['Свинка рядом. Значит, забег под защитой.','В Hearthstone я поставил легендарку. Она посмотрела на меня и ушла.','Slay the Spire: сердце бьётся быстрее, чем у убийцы в DBD.','В DBD главное — не быть первым, кого заметили. Я научился молчать.','Свинка одобряет. Остальное неважно.']},
+{name:'Zaglik',games:['Slay the Spire','Hearthstone','World of Warcraft'],phrases:['Slay the Spire: я взял ещё одну карту. Она была бесплатной. Это ловушка.','В WoW я танк морально. Агрю всё происходящее.','Hearthstone: план был хороший до появления противника.','Меч красивый. Стратегия пока в разработке.','Если увидите меня AFK — я не AFK, я принимаю судьбоносное решение.']},
+{name:'Rofl of Bones',games:['World of Warcraft','Guilty Gear Strive'],phrases:['В WoW скелет внутри каждого рейд-лидера.','Guilty Gear: я пришёл нажать одну кнопку. Нажал все.','Кости сказали идти в рейд. Кости редко ошибаются.','Мой план идеален. Он просто ещё не загрузился.','Если это выглядит как плохая идея — значит, будет весело.']},
+{name:'GraveKeeper',games:['League of Legends','Другие игры'],phrases:['Я хранитель могил. И очередного незаконченного сейва.','В LoL главное — не смотреть на миникарту слишком внимательно.','Я пришёл ненадолго. Могила подождёт.','Другие игры? Да, у меня их кладбище.','Если команда сказала «последняя», это обычно начало второй сессии.']}
+];
+const scene=document.getElementById('scene'),dialog=document.getElementById('dialog');let current=-1,idx=-1,activeEl=null;
+function placeDialog(el){const a=scene.getBoundingClientRect(),b=el.getBoundingClientRect();const id=+el.dataset.person;const w=Math.min(270,scene.clientWidth*.42);let x=b.left-a.left+b.width/2-w/2,y=b.top-a.top-105;if(id===2){x=b.left-a.left-w-14;y=b.top-a.top-18}x=Math.max(8,Math.min(scene.clientWidth-w-8,x));y=Math.max(10,y);dialog.style.width=w+'px';dialog.style.left=x+'px';dialog.style.top=y+'px'}
+let typingTimer=0;
+function typePhrase(text){const target=document.getElementById('dt');clearInterval(typingTimer);target.textContent='';let i=0;typingTimer=setInterval(()=>{target.textContent=text.slice(0,++i);if(i>=text.length)clearInterval(typingTimer)},18)}
+function showPerson(el){const p=people[+el.dataset.person];const id=+el.dataset.person;if(current!==id){current=id;idx=0}else{idx=(idx+1)%p.phrases.length}activeEl=el;document.getElementById('dn').textContent=p.name;placeDialog(el);dialog.classList.add('open');typePhrase(p.phrases[idx])}
+document.querySelectorAll('.person').forEach(el=>el.addEventListener('click',e=>{e.stopPropagation();showPerson(el)}));
+document.getElementById('dx').onclick=e=>{e.stopPropagation();dialog.classList.remove('open')};scene.addEventListener('click',e=>{if(!e.target.closest('.person')&&!e.target.closest('.dialog'))dialog.classList.remove('open')});window.addEventListener('resize',()=>{if(dialog.classList.contains('open')&&activeEl)placeDialog(activeEl)});
+
+const roomModal=document.getElementById('roomModal'),roomImg=document.getElementById('roomImg'),roomTitle=document.getElementById('roomTitle'),roomCaption=document.getElementById('roomCaption');
+const rooms={hall:{title:'Общий зал',img:'assets/house_scene.png',caption:'Главная комната Семьи — общий стол, камин и места друзей.'},library:{title:'Библиотека',img:'assets/library.jpg',caption:'Тихая библиотека для книг, Pathfinder и тех самых «ещё пять минут».'},outside:{title:'Двор',img:'assets/village.jpg',caption:'Выход из дома — маленький пиксельный дворик и дорога в лес.'},map:{title:'План дома',img:'assets/floorplan.jpg',caption:'Схема дома: комнаты, проходы и будущие места для новых событий.'}};
+function openRooms(key='hall'){roomModal.classList.add('open');setRoom(key)}
+function setRoom(key){const r=rooms[key];roomTitle.textContent=r.title;roomImg.src=r.img;roomCaption.textContent=r.caption;document.querySelectorAll('.room-tabs button').forEach(b=>b.classList.toggle('active',b.dataset.room===key))}
+document.getElementById('roomsBtn').onclick=()=>openRooms('hall');document.getElementById('mapBtn').onclick=()=>openRooms('map');document.getElementById('roomClose').onclick=()=>roomModal.classList.remove('open');roomModal.addEventListener('click',e=>{if(e.target===roomModal)roomModal.classList.remove('open')});document.querySelectorAll('.room-tabs button').forEach(b=>b.onclick=()=>setRoom(b.dataset.room));
+
+const familyModal=document.getElementById('familyModal'),familyGrid=document.getElementById('familyGrid');
+const portraitModal=document.getElementById('portraitModal'),portraitBig=document.getElementById('portraitBig'),portraitName=document.getElementById('portraitName');
+people.forEach((p,i)=>{const card=document.createElement('button');card.type='button';card.className='family-member';card.innerHTML=`<span class="member-num">${String(i+1).padStart(2,'0')}</span><img src="assets/portrait_${i}.png" alt="${p.name}"><div class="member-name">${p.name}</div>`;card.addEventListener('click',()=>{portraitBig.src=`assets/portrait_${i}.png`;portraitBig.alt=p.name;portraitName.textContent=p.name;portraitModal.classList.add('open')});familyGrid.appendChild(card)});
+function openFamily(){familyModal.classList.add('open')}
+document.getElementById('familyBtn').onclick=openFamily;document.getElementById('familyClose').onclick=()=>familyModal.classList.remove('open');familyModal.addEventListener('click',e=>{if(e.target===familyModal)familyModal.classList.remove('open')});document.getElementById('portraitClose').onclick=()=>portraitModal.classList.remove('open');portraitModal.addEventListener('click',e=>{if(e.target===portraitModal)portraitModal.classList.remove('open')});document.addEventListener('keydown',e=>{if(e.key==='Escape'){portraitModal.classList.remove('open');familyModal.classList.remove('open')}});
+
+document.getElementById('profileBtn')?.addEventListener('click',()=>{});
+let night=false;document.getElementById('night').onclick=()=>{night=!night;document.querySelector('.scene-bg').style.filter=night?'brightness(.64) saturate(.8)':'none';document.getElementById('night').textContent=night?'☀ День':'☾ Ночь'};
+</script>
+
+<style>
+.music-orb{position:relative;width:38px;height:38px;border-radius:50%;z-index:10;
+display:flex;align-items:center;justify-content:center;background:rgba(34,24,28,.94);border:2px solid #b8925e;
+box-shadow:0 4px 16px rgba(0,0,0,.45);color:#f2d6a6;font-size:20px;cursor:pointer}
+.music-orb:hover{transform:scale(1.06)}
+.music-mixer{position:fixed;top:68px;right:18px;width:235px;z-index:99998;background:rgba(15,10,14,.97);
+border:1px solid #8e6b45;box-shadow:0 8px 28px rgba(0,0,0,.55);padding:12px;display:none;color:#ead7bb}
+.music-mixer.open{display:block}.music-mixer-row{display:flex;align-items:center;gap:8px}
+.music-mixer input{width:135px}.music-status{font-size:12px;opacity:.78;margin-top:7px}
+</style>
+<div class="music-mixer" id="musicMixer">
+ <div class="music-mixer-row"><button id="musicPlay">Ⅱ</button>
+ <input id="musicVol" type="range" min="0" max="100" value="32"><span id="musicPct">32%</span></div>
+ <div class="music-status" id="musicStatus">Мелодия играет</div>
+</div>
+<script>
+(function(){
+ const a=new Audio('assets/family_tavern_melody.wav'); a.loop=true; a.volume=.32;
+ const orb=document.getElementById('musicOrb'), box=document.getElementById('musicMixer');
+ const play=document.getElementById('musicPlay'), vol=document.getElementById('musicVol');
+ const pct=document.getElementById('musicPct'), status=document.getElementById('musicStatus');
+ function sync(){let on=!a.paused;play.textContent=on?'Ⅱ':'▶';status.textContent=on?'Мелодия играет':'Музыка выключена'}
+ orb.onclick=e=>{e.stopPropagation();box.classList.toggle('open')};
+ box.onclick=e=>e.stopPropagation();
+ play.onclick=async()=>{if(a.paused){try{await a.play()}catch(e){} }else a.pause();sync()};
+ vol.oninput=()=>{a.volume=vol.value/100;pct.textContent=vol.value+'%'};
+ document.addEventListener('click',()=>box.classList.remove('open'));
+ // Start immediately where browser permits; first user interaction retries autoplay.
+ const start=async()=>{try{await a.play()}catch(e){} sync()};
+ start();
+ ['click','pointerdown','keydown','touchstart'].forEach(ev=>document.addEventListener(ev,start,{once:true}));
+})();
+</script>
+</body></html>
